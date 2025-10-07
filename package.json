@@ -2,7 +2,8 @@
 	"name": "smart-console-log",
 	"displayName": "Smart Console Log",
 	"description": "Quick console.log for highlighted variables",
-	"version": "0.0.1",
+	"version": "0.0.2",
+	"icon": "icon.png",
 	"engines": {
 		"vscode": "^1.101.0"
 	},
@@ -24,17 +25,18 @@
 				"smartConsoleLog.templates": {
 					"type": "object",
 					"default": {
-						"typescript": "console.log(\"🚀 ~ ${className} ~ ${functionName} ~ ${variable}:\", ${variable});",
-						"javascript": "console.log(\"🚀 ~ ${className} ~ ${functionName} ~ ${variable}:\", ${variable});",
-						"typescriptreact": "console.log(\"🚀 ~ ${className} ~ ${functionName} ~ ${variable}:\", ${variable});",
-						"javascriptreact": "console.log(\"🚀 ~ ${className} ~ ${functionName} ~ ${variable}:\", ${variable});",
-						"python": "print(\"🚀 ~ ${className} ~ ${functionName} ~ ${variable}:\", ${variable})",
-						"php": "echo \"🚀 ~ ${className} ~ ${functionName} ~ ${variable}: \" . ${variable} . \"\\n\";",
-						"java": "System.out.println(\"🚀 ~ ${className} ~ ${functionName} ~ ${variable}: \" + ${variable});",
-						"csharp": "Console.WriteLine($\"🚀 ~ ${className} ~ ${functionName} ~ ${variable}: {${variable}} \");",
-						"ruby": "puts \"🚀 ~ ${className} ~ ${functionName} ~ ${variable}: #{${variable}}\"",
-						"go": "fmt.Printf(\"🚀 ~ %s ~ %s ~ %s: %v\\n\", \"${className}\", \"${functionName}\", \"${variable}\", ${variable})",
-						"c": "printf(\"🚀 ~ %s ~ %s ~ %s: %d\\n\", \"${className}\", \"${functionName}\", \"${variable}\", ${variable});",
+						"typescript": "console.log(\"🚀 ~ ${className} ~ ${functionName} ~ ${lineNumber} ~ ${variable}:\", ${variable});",
+						"javascript": "console.log(\"🚀 ~ ${className} ~ ${functionName} ~ ${lineNumber} ~ ${variable}:\", ${variable});",
+						"typescriptreact": "console.log(\"🚀 ~ ${className} ~ ${functionName} ~ ${lineNumber} ~ ${variable}:\", ${variable});",
+						"javascriptreact": "console.log(\"🚀 ~ ${className} ~ ${functionName} ~ ${lineNumber} ~ ${variable}:\", ${variable});",
+						"vue": "console.log(\"🚀 ~ ${className} ~ ${functionName} ~ ${lineNumber} ~ ${variable}:\", ${variable});",
+						"python": "print(\"🚀 ~ ${className} ~ ${functionName} ~ ${lineNumber} ~ ${variable}:\", ${variable})",
+						"php": "echo \"🚀 ~ ${className} ~ ${functionName} ~ ${lineNumber} ~ ${variable}: \" . ${variable} . \"\\n\";",
+						"java": "System.out.println(\"🚀 ~ ${className} ~ ${functionName} ~ ${lineNumber} ~ ${variable}: \" + ${variable});",
+						"csharp": "Console.WriteLine($\"🚀 ~ ${className} ~ ${functionName} ~ ${lineNumber} ~ ${variable}: {${variable}} \");",
+						"ruby": "puts \"🚀 ~ ${className} ~ ${functionName} ~ ${lineNumber} ~ ${variable}: #{${variable}}\"",
+						"go": "fmt.Printf(\"🚀 ~ %s ~ %s ~ %s: %v\\n\", \"${className}\", \"${functionName}\", \"${lineNumber}\" , \"${variable}\", ${variable})",
+						"c": "printf(\"🚀 ~ %s ~ %s ~ %s: %d\\n\", \"${className}\", \"${functionName}\", \"${lineNumber}\", \"${variable}\", ${variable});",
 						"cpp": "std::cout << \"🚀 ~ \" << \"${className}\" << \" ~ \" << \"${functionName}\" << \" ~ \" << \"${variable}\" << \": \" << ${variable} << std::endl;"
 					},
 					"description": "Templates for log statements by language. Supports placeholders: ${className}, ${functionName}, ${variable}."

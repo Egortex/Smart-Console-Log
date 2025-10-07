@@ -29,6 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
 			"go",
 			"c",
 			"cpp",
+			"vue",
 		];
 
 		// Проверка, поддерживается ли текущий язык
@@ -134,13 +135,20 @@ export function activate(context: vscode.ExtensionContext) {
 			const jsFuncMatch =
 				textBeforeCursor.match(/function\s+([a-zA-Z0-9_]+)/g) ||
 				textBeforeCursor.match(/([a-zA-Z0-9_]+)\s*=\s*\(/g) ||
-				textBeforeCursor.match(/([a-zA-Z0-9_]+)\s*:\s*\(/g);
+				textBeforeCursor.match(/([a-zA-Z0-9_]+)\s*:\s*\(/g) ||
+				textBeforeCursor.match(/([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g) ||
+				textBeforeCursor.match(/\{\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g) ||
+				textBeforeCursor.match(/(?:static\s+)?([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g) ||
+				textBeforeCursor.match(/(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*\(/g) ||
+				textBeforeCursor.match(/function\s*/g);
 
 			functionName = jsFuncMatch
 				? jsFuncMatch[jsFuncMatch.length - 1]
 						.replace(/function\s+/, "")
-						.replace(/\s*=\s*\(/, "")
-						.replace(/\s*:\s*\(/, "")
+						.replace(/\s*=\s*\(.*\)\s*=>/, "")
+						.replace(/\s*:\s*function/, "")
+						.replace(/get\s+/, "")
+						.replace(/\s*\(/, "")
 						.trim()
 				: "";
 
@@ -155,41 +163,13 @@ export function activate(context: vscode.ExtensionContext) {
 		if (!template) {
 			template = 'console.log("🚀 ~ ${className} ~ ${functionName} ~ ${variable}:", ${variable});';
 		}
+		const lineNumber = position.line + 1; // Получаем номер строки (API 0-based)
 
-		// шаблон логирования
-		// let logStatement = "";
-
-		// switch (languageId) {
-		// 	case "python":
-		// 		logStatement = `print("🚀 ~ ${className || ""} ~ ${
-		// 			functionName || ""
-		// 		} ~ ${selectedText}: ", ${selectedText})`;
-		// 		break;
-		// 	case "php":
-		// 		logStatement = `echo "🚀 ~ ${className || ""} ~ ${
-		// 			functionName || ""
-		// 		} ~ ${selectedText}: " . ${selectedText} . "\\n";`;
-		// 		break;
-		// 	case "java":
-		// 		logStatement = `System.out.println("🚀 ~ ${className || ""} ~ ${
-		// 			functionName || ""
-		// 		} ~ ${selectedText}: " + ${selectedText});`;
-		// 		break;
-		// 	case "csharp":
-		// 		logStatement = `Console.WriteLine($"🚀 ~ ${className || ""} ~ ${
-		// 			functionName || ""
-		// 		} ~ ${selectedText}: {${selectedText}}");`;
-		// 		break;
-		// 	default:
-		// 		logStatement = `console.log("🚀 ~ ${className || ""} ~ ${
-		// 			functionName || ""
-		// 		} ~ ${selectedText}:", ${selectedText});`;
-		// 		break;
-		// }
 		// Подставляем переменные в шаблон
 		const logStatement = template
 			.replace(/\${className}/g, className || "")
 			.replace(/\${functionName}/g, functionName || "")
+			.replace(/\${lineNumber}/g, String(lineNumber))
 			.replace(/\${variable}/g, selectedText);
 
 		// Вставляем лог по правилу insertAfterBlock
@@ -253,6 +233,86 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	context.subscriptions.push(disposable);
+}
+
+/**
+ * Вспомогательная функция для простой вставки лога после указанной строки.
+ */
+function insertLogAfterCurrentLine(editor: vscode.TextEditor, line: number, logStatement: string) {
+	const insertPos = new vscode.Position(line + 1, 0);
+	editor.edit((editBuilder) => {
+		editBuilder.insert(insertPos, logStatement + "\n");
+	});
+}
+
+/**
+ * Находит "умную" позицию для вставки лога: в конце текущего блока кода.
+ * @returns vscode.Position для вставки или null, если подходящая позиция не найдена.
+ */
+function findSmartInsertPosition(
+	document: vscode.TextDocument,
+	position: vscode.Position,
+	languageId: string,
+): vscode.Position | null {
+	const currentLine = document.lineAt(position.line);
+
+	// Для языков с отступами, как Python
+	if (languageId === "python") {
+		const currentIndent = currentLine.firstNonWhitespaceCharacterIndex;
+
+		for (let lineNum = position.line + 1; lineNum < document.lineCount; lineNum++) {
+			const line = document.lineAt(lineNum);
+			if (line.isEmptyOrWhitespace) {
+				continue; // Пропускаем пустые строки
+			}
+
+			const lineIndent = line.firstNonWhitespaceCharacterIndex;
+			// Если мы нашли строку с меньшим или таким же отступом,
+			// это означает конец текущего блока. Вставляем перед этой строкой.
+			if (lineIndent <= currentIndent) {
+				return new vscode.Position(lineNum, 0);
+			}
+		}
+		// Если дошли до конца файла, значит, это конец последнего блока
+		return document.lineAt(document.lineCount - 1).range.end;
+	}
+
+	// Для языков со скобками (JS, TS, C#, Java и т.д.)
+	let braceBalance = 0;
+	let foundFirstBrace = false;
+	const startOffset = document.offsetAt(currentLine.range.start);
+
+	for (let offset = startOffset; offset < document.getText().length; offset++) {
+		const char = document.getText(
+			new vscode.Range(document.positionAt(offset), document.positionAt(offset + 1)),
+		);
+
+		if (char === "{") {
+			if (!foundFirstBrace) {
+				// Начинаем считать баланс только после первой открывающей скобки
+				// на уровне курсора или глубже.
+				if (offset >= document.offsetAt(position)) {
+					foundFirstBrace = true;
+					braceBalance = 1;
+				}
+			} else {
+				braceBalance++;
+			}
+		} else if (char === "}") {
+			if (foundFirstBrace) {
+				braceBalance--;
+
+				// Когда баланс достиг нуля, мы нашли закрывающую скобку нашего блока.
+				if (braceBalance === 0) {
+					const bracePosition = document.positionAt(offset);
+					// Вставляем на начало строки, где находится закрывающая скобка.
+					return new vscode.Position(bracePosition.line, 0);
+				}
+			}
+		}
+	}
+
+	return null; // Не удалось найти подходящее место
 }
 
 export function deactivate() {}

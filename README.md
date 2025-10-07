@@ -1,73 +1,75 @@
 # Smart Console Log — VS Code Extension
 
-Расширение для Visual Studio Code, которое помогает быстро вставлять отладочные логи в код.
-Поддерживает несколько языков программирования с настраиваемыми шаблонами вывода.
+A Visual Studio Code extension that helps you quickly insert debugging logs into your code.  
+Supports multiple programming languages with customizable log output templates.
 
 ---
 
-## 🚀 Возможности
+## 🚀 Features
 
-- Вставка логов по выделенному тексту (переменной, выражению и т.п.)
-- Автоматическое определение контекста: класс и функция, в которой находится курсор
-- Вставка лога **после закрывающей фигурной скобки блока** или **на следующей строке** — настраивается
-- Поддержка популярных языков: JavaScript, TypeScript, JSX, TSX, Python, PHP, Java, C#, RUBY, GO, C, C++
-- Гибкая настройка шаблонов логов для любого языка через `settings.json`
-- Горячая клавиша для быстрого добавления: `Ctrl+Alt+L` (Windows/Linux), `Cmd+Alt+L` (macOS)
-
----
-
-## ⚙️ Установка
-
-1. Склонируйте репозиторий или скачайте архив с исходниками
-2. В VS Code нажмите `F5` для запуска расширения в режиме разработки
-3. Для финального пакета соберите расширение с помощью `vsce` или установите из Marketplace (если опубликовано)
+- Insert logs based on selected text (variable, expression, etc.)
+- Automatic context detection: class and function where the cursor is located
+- Insert log **after the closing brace of a code block** or **on the next line** — configurable
+- Supports popular languages: JavaScript, TypeScript, JSX, TSX, Python, PHP, Java, C#, Ruby, Go, C, C++
+- Flexible log template customization for any language via `settings.json`
+- Keyboard shortcut for quick insertion: `Ctrl+Alt+L` (Windows/Linux), `Cmd+Alt+L` (macOS)
 
 ---
 
-## 🔧 Настройки
+## ⚙️ Installation for developers
 
-В `settings.json` доступны следующие опции:
+1. Clone the repository or download the source archive
+2. In VS Code, press `F5` to run the extension in development mode
+3. To create a final package, build the extension using `vsce` or install it from the Marketplace (if published)
+
+---
+
+## 🔧 Settings
+
+The following options are available in `settings.json`:
 
 ```json
 {
 	"smartConsoleLog.insertAfterBlock": true,
+
 	"smartConsoleLog.templates": {
-		"typescript": "console.log(\"🚀 ~ ${className} ~ ${functionName} ~ ${variable}:\", ${variable});",
-		"javascript": "console.log(\"🚀 ~ ${className} ~ ${functionName} ~ ${variable}:\", ${variable});",
-		"typescriptreact": "console.log(\"🚀 ~ ${className} ~ ${functionName} ~ ${variable}:\", ${variable});",
-		"javascriptreact": "console.log(\"🚀 ~ ${className} ~ ${functionName} ~ ${variable}:\", ${variable});",
-		"python": "print(\"🚀 ~ ${className} ~ ${functionName} ~ ${variable}:\", ${variable})",
-		"php": "echo \"🚀 ~ ${className} ~ ${functionName} ~ ${variable}: \" . ${variable} . \"\\n\";",
-		"java": "System.out.println(\"🚀 ~ ${className} ~ ${functionName} ~ ${variable}: \" + ${variable});",
-		"csharp": "Console.WriteLine($\"🚀 ~ ${className} ~ ${functionName} ~ ${variable}: {${variable}} \");",
-		"ruby": "puts \"🚀 ~ ${className} ~ ${functionName} ~ ${variable}: #{${variable}}\"",
-		"go": "fmt.Printf(\"🚀 ~ %s ~ %s ~ %s: %v\\n\", \"${className}\", \"${functionName}\", \"${variable}\", ${variable})",
-		"c": "printf(\"🚀 ~ %s ~ %s ~ %s: %d\\n\", \"${className}\", \"${functionName}\", \"${variable}\", ${variable});",
+		"typescript": "console.log(\"🚀 ~ ${className} ~ ${functionName} ~ ${lineNumber} ~ ${variable}:\", ${variable});",
+		"javascript": "console.log(\"🚀 ~ ${className} ~ ${functionName} ~ ${lineNumber} ~ ${variable}:\", ${variable});",
+		"typescriptreact": "console.log(\"🚀 ~ ${className} ~ ${functionName} ~ ${lineNumber} ~ ${variable}:\", ${variable});",
+		"javascriptreact": "console.log(\"🚀 ~ ${className} ~ ${functionName} ~ ${lineNumber} ~ ${variable}:\", ${variable});",
+		"vue": "console.log(\"🚀 ~ ${className} ~ ${functionName} ~ ${lineNumber} ~ ${variable}:\", ${variable});",
+		"python": "print(\"🚀 ~ ${className} ~ ${functionName} ~ ${lineNumber} ~ ${variable}:\", ${variable})",
+		"php": "echo \"🚀 ~ ${className} ~ ${functionName} ~ ${lineNumber} ~ ${variable}: \" . ${variable} . \"\\n\";",
+		"java": "System.out.println(\"🚀 ~ ${className} ~ ${functionName} ~ ${lineNumber} ~ ${variable}: \" + ${variable});",
+		"csharp": "Console.WriteLine($\"🚀 ~ ${className} ~ ${functionName} ~ ${lineNumber} ~ ${variable}: {${variable}} \");",
+		"ruby": "puts \"🚀 ~ ${className} ~ ${functionName} ~ ${lineNumber} ~ ${variable}: #{${variable}}\"",
+		"go": "fmt.Printf(\"🚀 ~ %s ~ %s ~ %s: %v\\n\", \"${className}\", \"${functionName}\", \"${lineNumber}\" , \"${variable}\", ${variable})",
+		"c": "printf(\"🚀 ~ %s ~ %s ~ %s: %d\\n\", \"${className}\", \"${functionName}\", \"${lineNumber}\", \"${variable}\", ${variable});",
 		"cpp": "std::cout << \"🚀 ~ \" << \"${className}\" << \" ~ \" << \"${functionName}\" << \" ~ \" << \"${variable}\" << \": \" << ${variable} << std::endl;"
 	}
 }
 ```
 
 - `insertAfterBlock`:
-  `true` — вставлять лог **после** блока (после закрывающей скобки или блока с меньшим отступом в Python)
-  `false` — вставлять лог **на следующей строке** после текущей
+  `true` — insert the log **after** the current block (after the closing brace or after a block with a smaller indentation level in Python)  
+  `false` — insert the log **on the next line** after the current line
 
-- `templates`: объект с шаблонами логов по языкам. Используйте `${className}`, `${functionName}`, `${variable}` для подстановок
+- `templates`: an object containing log templates per language. Use placeholders `${className}`, `${functionName}`, and `${variable}` for dynamic substitution.
 
 ---
 
-## 💡 Примеры
+## 💡 Examples
 
 ### JavaScript/TypeScript
 
 ```ts
 function greet(name: string) {
 	const greeting = `Hello, ${name}!`;
-	// выделяем "greeting" и нажимаем Ctrl+Alt+L
+	// Select "greeting" and press Ctrl+Alt+L
 }
 ```
 
-Добавится:
+Result:
 
 ```ts
 console.log("🚀 ~  ~ greet ~ greeting:", greeting);
@@ -79,10 +81,10 @@ console.log("🚀 ~  ~ greet ~ greeting:", greeting);
 class Person:
     def say_hello(self, name):
         message = f"Hi, {name}!"
-        # выделяем "message" и нажимаем Ctrl+Alt+L
+        # Select "message" and press Ctrl+Alt+L
 ```
 
-Добавится:
+Result:
 
 ```py
 print("🚀 ~ Person ~ say_hello ~ message:", message)
@@ -90,16 +92,16 @@ print("🚀 ~ Person ~ say_hello ~ message:", message)
 
 ---
 
-## 🛠 Разработка и вклад
+## 🛠 Development and Contributions
 
-Пулреквесты, идеи и багрепорты приветствуются!
+Pull requests, feature suggestions, and bug reports are welcome!
 
-## 📄 Лицензия
+## 📄 License
 
-MIT license
+MIT License
 
 ---
 
-## Спасибо за использование!
+## Thank you for using Smart Console Log!
 
-Если хочешь новых языков или функционала — пиши или добавляй сам!
+If you'd like support for additional languages or new features — feel free to open an issue or contribute directly!
