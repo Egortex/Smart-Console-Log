@@ -10,7 +10,7 @@ Supports multiple programming languages with customizable log output templates.
 - Insert logs based on selected text (variable, expression, etc.)
 - Automatic context detection: class and function where the cursor is located
 - Insert log **after the closing brace of a code block** or **on the next line** — configurable
-- Supports popular languages: JavaScript, TypeScript, JSX, TSX, Python, PHP, Java, C#, Ruby, Go, C, C++
+- Supports popular languages: JavaScript, TypeScript, JSX, TSX, Vue, Python, PHP, Java, C#, Ruby, Go, C, C++
 - Flexible log template customization for any language via `settings.json`
 - Keyboard shortcut for quick insertion: `Ctrl+Alt+L` (Windows/Linux), `Cmd+Alt+L` (macOS)
 
